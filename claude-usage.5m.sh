@@ -4,9 +4,6 @@
 # <swiftbar.author>jahoonjin</swiftbar.author>
 # <swiftbar.desc>Shows remaining Claude Code usage limit (5h/7d) as a battery gauge in the menu bar.</swiftbar.desc>
 
-# SwiftBar sometimes launches plugins with an empty $HOME.
-HOME="${HOME:-$(eval echo "~$(id -un)")}"
-
 CACHE_FILE="$HOME/.claude/statusline-rate-limits-cache.json"
 ICON_DIR="$HOME/Library/Application Support/ClaudeUsageMenuBar/claude-usage-assets"
 STALE_SECS=1200 # 20 min

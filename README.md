@@ -86,8 +86,8 @@ Learned the hard way on SwiftBar 2.1.1 (597):
    folder can retrigger the Plugins folder watcher and cause duplicate runs. This plugin
    is a plain one-shot script that SwiftBar runs on a timer and exits.
 3. **Don't rely on `$HOME` or other env vars inside the plugin.** SwiftBar sometimes runs
-   plugins with an empty `$HOME` in the GUI environment. This plugin falls back to the
-   current user's home directory (`~$(id -un)`) when `$HOME` is empty.
+   plugins with an empty `$HOME` in the GUI environment. This plugin resolves `$HOME` at
+   the top and if that's ever empty for you, hardcode the paths instead.
 4. **Restart SwiftBar with `pkill -x SwiftBar && open -a SwiftBar`**, not by launching the
    binary directly — the latter bypasses the single-instance check and can spawn
    duplicate menu bar items.
