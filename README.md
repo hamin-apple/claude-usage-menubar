@@ -11,15 +11,15 @@ remaining as a battery-gauge icon in the macOS menu bar.
 Claude Code session
   -> statusLine hook (~/.claude/claude-usage-cache.sh)
   -> ~/.claude/statusline-rate-limits-cache.json
-  -> SwiftBar plugin (claude-usage.5m.sh), polled every 5 minutes
+  -> SwiftBar plugin (claude-usage.3m.sh), polled every 3 minutes
   -> menu bar icon + dropdown detail
 ```
 
 Claude Code only reports rate-limit data through the `statusLine` hook, and only while a
 session is active. The cache-writer script saves the latest known 5h/7d percentages to
 disk on every turn, so the menu bar plugin (which runs independently of any open Claude
-Code session) always has a value to show, falling back to the last known numbers
-(marked stale after 20 minutes) when no session is running.
+Code session) always has a value to show, keeping the last known numbers when no session is
+running.
 
 ## Requirements
 
@@ -66,7 +66,7 @@ pkill -x SwiftBar && open -a SwiftBar
 
 ### Manual install
 
-1. Copy `claude-usage.5m.sh` to `~/Library/Application Support/SwiftBar/Plugins/`,
+1. Copy `claude-usage.3m.sh` to `~/Library/Application Support/SwiftBar/Plugins/`,
    `chmod +x` it, and in the copy replace `$HOME` on the `CACHE_FILE` and `ICON_DIR` lines
    with your absolute home path (e.g. `/Users/you`).
 2. Copy everything under `assets/` to
@@ -97,15 +97,14 @@ may be `null`.
 ## Customization
 
 - **Bucket thresholds** (which icon shows at which remaining %): `bucket_for()` in
-  `claude-usage.5m.sh`.
-- **Stale timeout**: `STALE_SECS` at the top of `claude-usage.5m.sh` (default 20 min).
-- **Which limit to show**: `SHOW_METRIC` at the top of `claude-usage.5m.sh` —
+  `claude-usage.3m.sh`.
+- **Which limit to show**: `SHOW_METRIC` at the top of `claude-usage.3m.sh` —
   `auto` (default, shows whichever of 5h/7d has less remaining), `five_hour`, or
   `seven_day`.
 - **Icon design**: edit `assets/icon-*.png` directly, or regenerate via
   `assets/generate-icons.py` (requires your own source silhouette image — see the note
   in that file).
-- **Poll interval**: rename `claude-usage.5m.sh` using SwiftBar's interval syntax
+- **Poll interval**: rename `claude-usage.3m.sh` using SwiftBar's interval syntax
   (`10s`, `1m`, `1h`, etc).
 
 ## SwiftBar gotchas

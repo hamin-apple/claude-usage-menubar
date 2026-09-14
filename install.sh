@@ -18,7 +18,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLUGINS_DIR="$HOME/Library/Application Support/SwiftBar/Plugins"
 ASSETS_DIR="$HOME/Library/Application Support/ClaudeUsageMenuBar/claude-usage-assets"
-PLUGIN="$PLUGINS_DIR/claude-usage.5m.sh"
+PLUGIN="$PLUGINS_DIR/claude-usage.3m.sh"
 CACHE_WRITER="$HOME/.claude/claude-usage-cache.sh"
 
 if ! command -v jq >/dev/null 2>&1; then
@@ -30,7 +30,7 @@ mkdir -p "$PLUGINS_DIR" "$ASSETS_DIR" "$HOME/.claude"
 
 home_escaped=$(printf '%s' "$HOME" | sed 's/[&|\\]/\\&/g')
 sed -E "/^(CACHE_FILE|ICON_DIR)=/s|\\\$HOME|${home_escaped}|" \
-  "$SCRIPT_DIR/claude-usage.5m.sh" > "$PLUGIN"
+  "$SCRIPT_DIR/claude-usage.3m.sh" > "$PLUGIN"
 if grep -Eq '^(CACHE_FILE|ICON_DIR)=.*\$HOME' "$PLUGIN"; then
   echo "Failed to write absolute paths into $PLUGIN" >&2
   exit 1

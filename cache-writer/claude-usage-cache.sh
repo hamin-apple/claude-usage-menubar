@@ -1,6 +1,6 @@
 #!/bin/bash
 # Minimal Claude Code `statusLine` command: caches the 5h/7d rate-limit
-# percentages to disk so claude-usage.5m.sh (the SwiftBar menu bar plugin)
+# percentages to disk so claude-usage.3m.sh (the SwiftBar menu bar plugin)
 # can read them, and prints a one-line summary so it's also useful as a
 # bare-bones statusline on its own.
 #

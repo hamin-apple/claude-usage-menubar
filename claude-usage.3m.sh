@@ -11,7 +11,6 @@ PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 # because SwiftBar sometimes runs plugins with an empty $HOME.
 CACHE_FILE="$HOME/.claude/statusline-rate-limits-cache.json"
 ICON_DIR="$HOME/Library/Application Support/ClaudeUsageMenuBar/claude-usage-assets"
-STALE_SECS=1200 # 20 min
 
 # Which limit's remaining percentage to show in the menu bar:
 #   auto       -> whichever of 5h/7d has less remaining (most urgent)
@@ -68,21 +67,8 @@ render_frame() {
   icon="$ICON_DIR/icon-${bucket}.png"
   icon_b64=$(base64 < "$icon" | tr -d '\n')
 
-  local mtime now age stale=0
-  mtime=$(stat -f %m "$CACHE_FILE" 2>/dev/null || echo 0)
-  now=$(date +%s)
-  age=$(( now - mtime ))
-  (( age > STALE_SECS )) && stale=1
-
-  local title="${shown_remaining}%"
-  (( stale )) && title="${title} (stale)"
-  echo "${title}|image=${icon_b64}"
+  echo "${shown_remaining}%|image=${icon_b64}"
   echo "---"
-
-  if (( stale )); then
-    echo "No recent Claude Code session — showing last known values|color=gray"
-    echo "---"
-  fi
 
   local five_reset_fmt="-" seven_reset_fmt="-"
   [ -n "$five_reset" ] && five_reset_fmt=$(date -r "${five_reset%.*}" "+%H:%M")
