@@ -9,7 +9,7 @@ remaining as a battery-gauge icon in the macOS menu bar.
 
 ```
 Claude Code session
-  -> statusLine hook (cache-writer/claude-usage-cache.sh)
+  -> statusLine hook (~/.claude/claude-usage-cache.sh)
   -> ~/.claude/statusline-rate-limits-cache.json
   -> SwiftBar plugin (claude-usage.5m.sh), polled every 5 minutes
   -> menu bar icon + dropdown detail
@@ -35,10 +35,27 @@ cd claude-usage-menubar
 ./install.sh
 ```
 
-`install.sh` copies the plugin into SwiftBar's Plugins folder and the icon assets into
-their own folder, then prints the `statusLine` snippet to add to
-`~/.claude/settings.json`. It won't touch that file for you — merge the snippet in by
-hand alongside any settings you already have.
+`install.sh`:
+
+- copies the plugin into SwiftBar's Plugins folder, with your absolute home path written
+  into its `CACHE_FILE` and `ICON_DIR` lines (see gotcha #3),
+- copies the icon assets into their own folder,
+- copies the cache writer to `~/.claude/claude-usage-cache.sh`, so nothing depends on
+  where you cloned this repo,
+- prints the `statusLine` snippet to add to `~/.claude/settings.json`.
+
+It won't edit `settings.json` for you. Add the snippet without removing your other
+settings:
+
+```json
+"statusLine": {
+  "type": "command",
+  "command": "bash ~/.claude/claude-usage-cache.sh"
+}
+```
+
+`statusLine` takes a single command, so this **replaces** any status line you already
+have. To keep yours, see [Already have a custom status line?](#already-have-a-custom-status-line).
 
 After that, open (or restart) a Claude Code session once to populate the cache, then
 restart SwiftBar:
@@ -49,14 +66,33 @@ pkill -x SwiftBar && open -a SwiftBar
 
 ### Manual install
 
-1. Copy `claude-usage.5m.sh` to `~/Library/Application Support/SwiftBar/Plugins/` and
-   `chmod +x` it.
+1. Copy `claude-usage.5m.sh` to `~/Library/Application Support/SwiftBar/Plugins/`,
+   `chmod +x` it, and in the copy replace `$HOME` on the `CACHE_FILE` and `ICON_DIR` lines
+   with your absolute home path (e.g. `/Users/you`).
 2. Copy everything under `assets/` to
    `~/Library/Application Support/ClaudeUsageMenuBar/claude-usage-assets/` (this must be
    **outside** SwiftBar's own Plugins folder tree — see gotcha #1 below).
-3. Add a `statusLine` command to `~/.claude/settings.json` pointing at
-   `cache-writer/claude-usage-cache.sh`.
+3. Copy `cache-writer/claude-usage-cache.sh` to `~/.claude/claude-usage-cache.sh` and add
+   the `statusLine` snippet above to `~/.claude/settings.json`.
 4. Start a Claude Code session once, then restart SwiftBar.
+
+### Already have a custom status line?
+
+Keep your own script as the `statusLine` command and paste the cache-writing block from
+`cache-writer/claude-usage-cache.sh` (the part that reads `.rate_limits` and writes the
+cache file) into it. The plugin only needs this file to exist and be refreshed:
+
+`~/.claude/statusline-rate-limits-cache.json`
+
+```json
+{
+  "five_hour": { "used_percentage": 42, "resets_at": 1789222872 },
+  "seven_day": { "used_percentage": 15, "resets_at": 1789305672 }
+}
+```
+
+`used_percentage` is 0–100 and `resets_at` is a Unix timestamp in seconds. Either value
+may be `null`.
 
 ## Customization
 
@@ -86,8 +122,10 @@ Learned the hard way on SwiftBar 2.1.1 (597):
    folder can retrigger the Plugins folder watcher and cause duplicate runs. This plugin
    is a plain one-shot script that SwiftBar runs on a timer and exits.
 3. **Don't rely on `$HOME` or other env vars inside the plugin.** SwiftBar sometimes runs
-   plugins with an empty `$HOME` in the GUI environment. This plugin resolves `$HOME` at
-   the top and if that's ever empty for you, hardcode the paths instead.
+   plugins with an empty `$HOME` and a minimal `PATH` in the GUI environment. That's why
+   `install.sh` writes absolute paths into the installed plugin (do the same if you
+   install manually), and the plugin adds `/opt/homebrew/bin` and `/usr/local/bin` to
+   `PATH` so it can find `jq`.
 4. **Restart SwiftBar with `pkill -x SwiftBar && open -a SwiftBar`**, not by launching the
    binary directly — the latter bypasses the single-instance check and can spawn
    duplicate menu bar items.
